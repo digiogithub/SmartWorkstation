@@ -1,0 +1,61 @@
+# SmartWorkstation — example configuration
+# Copy to config.toml and fill in your values.
+# See docs/tuya-setup.md for step-by-step instructions.
+
+# ── Tuya IoT Cloud credentials ────────────────────────────────────────────────
+[tuya]
+
+# Access ID   →  iot.tuya.com → Cloud → (your project) → Overview → Access ID
+client_id = "YOUR_ACCESS_ID"
+
+# Access Secret  →  same page, click the eye icon
+client_secret = "YOUR_ACCESS_SECRET"
+
+# Device ID of the virtual smart switch you created in the Tuya platform.
+# iot.tuya.com → Cloud → (your project) → Devices → Device ID column
+device_id = "YOUR_VIRTUAL_DEVICE_ID"
+
+# Data-center region for your Tuya account.
+# Must match the region selected when you created the Cloud Project.
+# Allowed values: "eu"  "us"  "cn"  "in"
+region = "eu"
+
+# DP (data-point) code that represents the power switch.
+# For standard Smart Socket / Smart Switch products this is "switch_1".
+# Check your product's DP list in iot.tuya.com → Product → Function Definition.
+switch_dp = "switch_1"
+
+# Set to true during initial setup to dump every raw Tuya MQTT event to stdout.
+# Useful for finding the correct switch_dp name and verifying the device_id.
+debug_events = false
+
+
+# ── Wake-on-LAN target ────────────────────────────────────────────────────────
+[wol]
+
+# MAC address of the target machine (the Mac that should wake up).
+# Any standard notation works: "AA:BB:CC:DD:EE:FF" or "AA-BB-CC-DD-EE-FF"
+mac_address = "AA:BB:CC:DD:EE:FF"
+
+# Directed broadcast address of your LAN segment.
+# Use "192.168.1.255" (replace with your subnet) for reliable LAN delivery,
+# or "255.255.255.255" for the limited broadcast (may be blocked by some routers).
+broadcast_ip = "192.168.1.255"
+
+# UDP destination port — 9 (discard) and 7 (echo) are both standard.
+port = 9
+
+# How many times to send the magic packet per switch-ON event (UDP is lossy).
+repeat = 3
+
+
+# ── Workstation stats reporter ────────────────────────────────────────────────
+# Enable only on the workstation that monitors CPU / RAM / Disk / VRAM.
+# Leave false (or omit) when running on the Raspberry Pi Zero W.
+[workstation]
+
+# Set to true to activate the periodic stats report.
+enabled = false
+
+# Reporting interval in seconds.
+stats_interval = 60
