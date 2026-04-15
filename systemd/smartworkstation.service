@@ -1,0 +1,47 @@
+# SmartWorkstation — Tuya virtual switch / WoL bridge
+#
+# This is a TEMPLATE file. The install-service.sh script fills in
+# @USER@, @BINARY@ and @CONFIG@ before copying it to /etc/systemd/system/.
+# Do NOT copy this file directly; use:
+#
+#   sudo ./scripts/install-service.sh
+#
+[Unit]
+Description=SmartWorkstation — Tuya WoL bridge
+Documentation=https://github.com/digiogithub/smartworkstation
+# Start only after the network stack is fully online so the Pulsar connection
+# to Tuya cloud succeeds on first attempt.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=@USER@
+Group=@USER@
+WorkingDirectory=@WORKDIR@
+ExecStart=@BINARY@ @CONFIG@
+Restart=on-failure
+# Wait 10 s before the first restart to avoid hammering Tuya on auth errors.
+RestartSec=10
+# Cap restarts: if the service crashes 5 times in 2 minutes systemd stops
+# retrying and marks it as failed (prevents infinite restart loops).
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+# Security hardening — limits what a compromised process can do.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+# The process only needs outbound UDP (WoL) and TCP (Pulsar TLS 7285).
+# Remove RestrictAddressFamilies if you hit unexpected bind errors.
+RestrictAddressFamilies=AF_INET AF_INET6
+
+# Logging goes to the systemd journal automatically.
+# View with:  journalctl -u smartworkstation -f
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=smartworkstation
+
+[Install]
+WantedBy=multi-user.target

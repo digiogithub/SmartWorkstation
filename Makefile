@@ -52,6 +52,50 @@ deploy-pi: build-arm6
 	@echo "Deployed to $(PI_HOST):~/smartworkstation/"
 	@echo "Run: ssh $(PI_HOST) 'cd ~/smartworkstation && ./$(BINARY)'"
 
+# ── Deploy + instalar servicio en Pi (todo en un paso) ────────────────────────
+# Compila para ARM6, copia binario, config y scripts al Pi, e instala el servicio.
+.PHONY: deploy-pi-service
+deploy-pi-service: build-arm6
+	ssh $(PI_HOST) "mkdir -p ~/smartworkstation/scripts ~/smartworkstation/systemd"
+	scp $(BINDIR)/$(BINARY)-linux-arm6   $(PI_HOST):~/smartworkstation/$(BINARY)
+	scp config.toml                       $(PI_HOST):~/smartworkstation/config.toml
+	scp scripts/install-service.sh        $(PI_HOST):~/smartworkstation/scripts/
+	scp scripts/uninstall-service.sh      $(PI_HOST):~/smartworkstation/scripts/
+	scp systemd/$(BINARY).service         $(PI_HOST):~/smartworkstation/systemd/
+	ssh $(PI_HOST) "chmod +x ~/smartworkstation/scripts/*.sh"
+	ssh $(PI_HOST) "sudo ~/smartworkstation/scripts/install-service.sh \
+	    -u \$$(id -un) \
+	    -b ~/smartworkstation/$(BINARY) \
+	    -c ~/smartworkstation/config.toml"
+	@echo "Servicio instalado y arrancado en $(PI_HOST)."
+	@echo "Ver logs: ssh $(PI_HOST) 'journalctl -u $(BINARY) -f'"
+
+# ── Instalar servicio systemd en la máquina LOCAL ────────────────────────────
+# Útil para instalar en la workstation directamente (sin SSH).
+# Usage: make install-service          (usa el binario AMD64 por defecto)
+#        make install-service BIN=./bin/smartworkstation-linux-amd64
+BIN ?= $(BINDIR)/$(BINARY)-linux-amd64
+.PHONY: install-service
+install-service: build-amd64
+	sudo ./scripts/install-service.sh \
+	    -u $$(id -un) \
+	    -b $(abspath $(BIN)) \
+	    -c $(abspath config.toml)
+
+# ── Desinstalar servicio systemd de la máquina LOCAL ─────────────────────────
+.PHONY: uninstall-service
+uninstall-service:
+	sudo ./scripts/uninstall-service.sh
+
+# ── Ver logs del servicio (máquina local) ────────────────────────────────────
+.PHONY: logs
+logs:
+	journalctl -u $(BINARY) -f
+
+.PHONY: status
+status:
+	systemctl status $(BINARY)
+
 # ── Standard Go targets ───────────────────────────────────────────────────────
 .PHONY: deps
 deps:
