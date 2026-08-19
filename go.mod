@@ -1,6 +1,6 @@
 module github.com/digiogithub/smartworkstation
 
-go 1.21
+go 1.25.0
 
 require (
 	github.com/BurntSushi/toml v1.3.2
@@ -21,7 +21,8 @@ require (
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/tuya/pulsar-client-go v0.0.0-20210318030624-2c99a816287b // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/crypto v0.52.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/term v0.43.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 )
